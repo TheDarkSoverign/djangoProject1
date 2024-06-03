@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+    <span class="title">
+        <h1>{% block title %}Машинное обучение{% endblock %}</h1>
+    </span>
+    <br><br>
+    <div>
+    <span>Мы переходим к решению задачи прогнозирования цен на жилье с помощью трех методов:... 
+        Данные мы берем со страницы kaggle.com (https://www.kaggle.com/code/aminizahra/polynomial-regression). 
+        Наш интерфейс разделен на две части: Часть 1: используется для обучения модели на следующих этапах:
+        - шаг 1: загрузка данных из файла .csv в статический каталог.
+        - шаг 2: обучение моделей с использованием данных, соответствующих вышеуказанным алгоритмам.
+        - шаг 3: после обучения мы сохраняем модель в трех файлах, соответствующих трем алгоритмам:
+        polymodel.PKL (полиномиальная регрессия), 
+        gb_model.pkl (градиентный бустинг), 
+        rnn_model.h5 (рекуррентная нейронная сеть). 
+        Часть 02:...
+    </span>
+    </div>
+    <div class="container shadow p-3 mb-5 bg-body rounded">
+        <form action="{% url 'training' %}" method="post">
+            {% csrf_token %}
+            <ol>
+                <li>Метод полиномиональной регресии</li>
+                {% if text_out %}
+                    <span style="color: blue">{{ text_out.0 }}</span><br>
+                    <span style="color: blue">Mean_absolute_error:{{ metrics.0.0 }}</span><br>
+                    <span style="color: blue">mean_squared_error:{{ metrics.0.1 }}</span>
+                {% endif %}
+                <li>Метод градиентного бустинга</li>
+                {% if text_out %}
+                    <span style="color: blue">{{ text_out.1 }}</span><br>
+                    <span style="color: blue">Mean_absolute_error:{{ metrics.1.0 }}</span><br>
+                    <span style="color: blue">mean_squared_error:{{ metrics.1.1 }}</span>
+                {% endif %}
+                <li>Рекуррентная нейронная сеть</li>
+                {% if text_out %}
+                    <span style="color: blue">{{ text_out.2 }}</span><br>
+                    <span style="color: blue">Mean_absolute_error:{{ metrics.2.0 }}</span><br>
+                    <span style="color: blue">mean_squared_error:{{ metrics.2.1 }}</span>
+                {% endif %}
+            </ol>
+            <button type="submit" class="btn btn-primary">Построить модель (Обучить)</button>
+        </form>
+    </div>
+
+    <div class="container shadow p-3 mb-5 bg-body rounded">
+        <form action="{% url 'testing' %}" method="post">
+            {% csrf_token %}
+            {% if mss %}
+                <p>{{ mss }}</p>
+            {% endif %}
+            <button type="submit" class="btn btn-primary" name="testing">Протестировать модель</button>
+        </form>
+    </div>
+
+    <div class="container shadow p-3 mb-5 bg-body rounded">
+        <form action="{% url 'result' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Показать результат</button>
+
+            {% if results %}
+                <div class="overflow-auto">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Real Result</th>
+                            <th scope="col">Polynomial Regression</th>
+                            <th scope="col">Gradient Boosting</th>
+                            <th scope="col">RNN</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for r in results %}
+                            <tr>
+                                <td>{{ r.id }}</td>
+                                <td>{{ r.Real_result }}</td>
+                                <td>{{ r.PL_regression }}</td>
+                                <td>{{ r.Gradient_boosting }}</td>
+                                <td>{{ r.RNN }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+
+{% endblock %}
